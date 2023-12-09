@@ -1,18 +1,28 @@
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from models import Base, Restaurant, Customer, Review
 from faker import Faker
-from models import Restaurant, Customer, Review, session
+
+engine = create_engine('sqlite:///restaurants.db', echo=True)
+
+Base.metadata.create_all(engine)
+
+Session = sessionmaker(bind=engine)
+session = Session()
 
 fake = Faker()
 
-# Creates restaurants
+# Create restaurants
 for _ in range(10):
     restaurant = Restaurant(name=fake.company(), price=fake.random_int(min=20, max=200))
     session.add(restaurant)
 
-# Creates customers
+# Create customers
 for _ in range(10):
     customer = Customer(first_name=fake.first_name(), last_name=fake.last_name())
     session.add(customer)
 
+# Commits the session to add these objects to the database
 session.commit()
 
 # Get all restaurants and customers
