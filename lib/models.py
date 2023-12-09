@@ -13,6 +13,8 @@ class Review(Base):
 
     customer = relationship("Customer", back_populates="reviews")
     restaurant = relationship("Restaurant", back_populates="reviews")
+    restaurant = relationship('Restaurant', back_populates='reviews', overlaps="restaurant,reviews")
+    customer = relationship('Customer', back_populates='reviews', overlaps="customer")
 
     def full_review(self):
         return f"Review for {self.restaurant.name} by {self.customer.full_name()}: {self.star_rating} stars."
@@ -25,6 +27,7 @@ class Restaurant(Base):
 
     reviews = relationship("Review", back_populates="restaurant")
     customers = relationship("Customer", secondary="reviews", back_populates="restaurants")
+    customers = relationship('Customer', back_populates='restaurants', overlaps="restaurant,reviews")
 
     @classmethod
     def fanciest(cls):
@@ -41,6 +44,8 @@ class Customer(Base):
 
     reviews = relationship("Review", back_populates="customer")
     restaurants = relationship("Restaurant", secondary="reviews", back_populates="customers")
+    reviews = relationship('Review', back_populates='customer', overlaps="customer,reviews")
+    restaurants = relationship('Restaurant', back_populates='customers', overlaps="customer,reviews")
 
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
