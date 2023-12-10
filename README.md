@@ -52,7 +52,7 @@
          Jasmine Lewis**
     
 
-5. ### Return a collection of all the reviews that the Customer has left:
+5. ### Return a collection of all the reviews that the Customer has made:
     ```
     customer_reviews = session.query(Review).filter_by(customer_id=customer_id).all()
     ```
@@ -71,7 +71,7 @@
     ```
     customer_restaurants = session.query(Restaurant).join(Review).filter(Review.customer_id == customer_id).all()
     ```
-    e.g. 
+    e.g.
     ```
     customer_restaurants = session.query(Restaurant).join(Review).filter(Review.customer_id == 3).all()
     for restaurant in customer_restaurants:
