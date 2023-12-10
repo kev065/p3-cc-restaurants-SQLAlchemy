@@ -5,6 +5,10 @@ from faker import Faker
 
 engine = create_engine('sqlite:///restaurants.db', echo=True)
 
+# Deletes all tables from the database before adding of new seed data
+Base.metadata.drop_all(engine)
+
+# Creates new tables after deletion of the previous ones
 Base.metadata.create_all(engine)
 
 Session = sessionmaker(bind=engine)
@@ -22,14 +26,13 @@ for _ in range(10):
     customer = Customer(first_name=fake.first_name(), last_name=fake.last_name())
     session.add(customer)
 
-# Commits the session to add these objects to the database
 session.commit()
 
 # Get all restaurants and customers
 restaurants = session.query(Restaurant).all()
 customers = session.query(Customer).all()
 
-# Create relationships between all Restaurants and Customers
+# Creates relationships between all Restaurants and Customers
 for restaurant in restaurants:
     for customer in customers:
         restaurant.customers.append(customer)
