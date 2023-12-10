@@ -29,6 +29,14 @@ session.commit()
 restaurants = session.query(Restaurant).all()
 customers = session.query(Customer).all()
 
+# Create relationships between all Restaurants and Customers
+for restaurant in restaurants:
+    for customer in customers:
+        restaurant.customers.append(customer)
+
+# Commit the session to save the changes to the database
+session.commit()
+
 # Create reviews
 for _ in range(20):
     review = Review(
@@ -39,3 +47,4 @@ for _ in range(20):
     session.add(review)
 
 session.commit()
+
