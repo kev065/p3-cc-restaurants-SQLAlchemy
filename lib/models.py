@@ -1,8 +1,14 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Table, Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
+
+# Creates the association table 
+restaurants_customers = Table('restaurants_customers', Base.metadata,
+    Column('restaurant_id', Integer, ForeignKey('restaurants.id')),
+    Column('customer_id', Integer, ForeignKey('customers.id'))
+)
 
 class Review(Base):
     __tablename__ = 'reviews'
@@ -13,8 +19,6 @@ class Review(Base):
 
     customer = relationship("Customer", back_populates="reviews")
     restaurant = relationship("Restaurant", back_populates="reviews")
-    restaurant = relationship('Restaurant', back_populates='reviews', overlaps="restaurant,reviews")
-    customer = relationship('Customer', back_populates='reviews', overlaps="customer")
 
     def full_review(self):
         return f"Review for {self.restaurant.name} by {self.customer.full_name()}: {self.star_rating} stars."
@@ -26,8 +30,7 @@ class Restaurant(Base):
     price = Column(Integer)
 
     reviews = relationship("Review", back_populates="restaurant")
-    customers = relationship("Customer", secondary="reviews", back_populates="restaurants")
-    customers = relationship('Customer', back_populates='restaurants', overlaps="restaurant,reviews")
+    customers = relationship("Customer", secondary=restaurants_customers, back_populates="restaurants")
 
     @classmethod
     def fanciest(cls):
@@ -43,9 +46,7 @@ class Customer(Base):
     last_name = Column(String)
 
     reviews = relationship("Review", back_populates="customer")
-    restaurants = relationship("Restaurant", secondary="reviews", back_populates="customers")
-    reviews = relationship('Review', back_populates='customer', overlaps="customer,reviews")
-    restaurants = relationship('Restaurant', back_populates='customers', overlaps="customer,reviews")
+    restaurants = relationship("Restaurant", secondary=restaurants_customers, back_populates="customers")
 
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
@@ -61,3 +62,4 @@ class Customer(Base):
     def delete_reviews(self, restaurant):
         session.query(Review).filter_by(customer_id=self.id, restaurant_id=restaurant.id).delete()
         session.commit()
+
